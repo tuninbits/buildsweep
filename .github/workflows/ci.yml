@@ -9,8 +9,8 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        node-version: [18.x, 20.x, 22.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [18.20.0, 20.x, 22.x]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
