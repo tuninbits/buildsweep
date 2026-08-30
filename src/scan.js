@@ -2,6 +2,38 @@ import { opendir, stat } from "node:fs/promises";
 import path from "node:path";
 import { matchesAny } from "./glob.js";
 
+// Windows (and occasionally other OSes) can transiently lock a directory
+// right after it's created — antivirus/indexer scanning is the common
+// cause — which surfaces as EBUSY/EPERM/EMFILE from opendir() even though
+// the directory is perfectly readable a moment later. Retrying briefly
+// avoids silently treating those directories as "doesn't exist" and
+// dropping real matches. Errors outside this set (ENOENT, EACCES) are not
+// retried since they represent a real, stable condition.
+const TRANSIENT_ERROR_CODES = new Set(["EBUSY", "EPERM", "EMFILE", "ENFILE"]);
+
+// `open` is injectable so tests can simulate transient failures without
+// needing to reproduce real OS-level file locks.
+export async function opendirWithRetry(
+  dirPath,
+  { retries = 4, delayMs = 25, open = opendir } = {},
+) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await open(dirPath);
+    } catch (err) {
+      lastErr = err;
+      if (!TRANSIENT_ERROR_CODES.has(err.code) || attempt === retries) {
+        throw err;
+      }
+      await new Promise((resolve) =>
+        setTimeout(resolve, delayMs * (attempt + 1)),
+      );
+    }
+  }
+  throw lastErr;
+}
+
 /**
  * Recursively check whether any file in `dir` matches one of the given
  * glob patterns. Used for requireSibling checks (e.g. "is there a *.csproj
@@ -10,7 +42,7 @@ import { matchesAny } from "./glob.js";
  */
 async function hasSiblingMatch(dir, patterns) {
   try {
-    const entries = await opendir(dir);
+    const entries = await opendirWithRetry(dir);
     // Do not call entries.close() while the `for await` loop is still
     // active — it owns the handle's lifecycle and closes it via the
     // iterator's implicit return() as soon as we break/return here.
@@ -30,7 +62,7 @@ async function getDirSizeBytes(dirPath) {
   async function walk(current) {
     let entries;
     try {
-      entries = await opendir(current);
+      entries = await opendirWithRetry(current);
     } catch {
       return;
     }
@@ -81,9 +113,9 @@ export async function scanForMatches(root, lookup, options = {}) {
   async function walk(dir) {
     let entries;
     try {
-      entries = await opendir(dir);
+      entries = await opendirWithRetry(dir);
     } catch {
-      return; // permission denied / vanished — skip silently
+      return; // permission denied / vanished / still locked after retries — skip
     }
 
     const subDirs = [];
