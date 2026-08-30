@@ -1,0 +1,75 @@
+{
+  "alwaysSkip": [".git", ".hg", ".svn"],
+  "ecosystems": {
+    "javascript": {
+      "label": "JavaScript / TypeScript",
+      "risk": "safe",
+      "dirs": [
+        "node_modules",
+        ".next",
+        ".nuxt",
+        ".turbo",
+        ".cache",
+        "dist",
+        "build",
+        "out",
+        ".output",
+        ".parcel-cache",
+        ".svelte-kit",
+        "coverage",
+        ".nyc_output",
+        "storybook-static"
+      ]
+    },
+    "rust": {
+      "label": "Rust",
+      "risk": "safe",
+      "dirs": ["target"]
+    },
+    "python": {
+      "label": "Python",
+      "risk": "safe",
+      "dirs": [
+        "__pycache__",
+        ".venv",
+        "venv",
+        ".pytest_cache",
+        ".mypy_cache",
+        ".ruff_cache",
+        ".tox",
+        ".eggs",
+        "*.egg-info"
+      ]
+    },
+    "java": {
+      "label": "Java / Kotlin",
+      "risk": "safe",
+      "dirs": ["target", "build", ".gradle"]
+    },
+    "dotnet": {
+      "label": ".NET",
+      "risk": "safe",
+      "dirs": ["bin", "obj"],
+      "requireSibling": ["*.csproj", "*.sln", "*.fsproj", "*.vbproj"],
+      "note": "bin/obj are only treated as build output when a project/solution file sits next to them. Prevents matching hand-written bin/ folders (Rails, npm CLI scripts, etc)."
+    },
+    "go": {
+      "label": "Go",
+      "risk": "safe",
+      "dirs": ["bin"],
+      "requireSibling": ["go.mod"],
+      "note": "Only matches bin/ when go.mod is a sibling. Go build caches live outside the repo (GOCACHE) and are not covered here."
+    },
+    "ruby": {
+      "label": "Ruby",
+      "risk": "safe",
+      "dirs": [".bundle"]
+    },
+    "misc": {
+      "label": "Misc (ambiguous names, opt-in)",
+      "risk": "risky",
+      "dirs": ["tmp", "vendor", ".vercel"],
+      "note": "These names are also used for intentionally committed content in some projects. Enable with --risky or --only misc."
+    }
+  }
+}

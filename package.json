@@ -1,0 +1,52 @@
+{
+  "name": "buildsweep",
+  "version": "0.1.0",
+  "description": "Find and delete build artifacts, caches, and dependency folders (node_modules, target, __pycache__, bin/obj, and more) across every language in one fast pass.",
+  "keywords": [
+    "cli",
+    "cleanup",
+    "disk-space",
+    "node_modules",
+    "cargo",
+    "rust",
+    "python",
+    "build-artifacts",
+    "cache",
+    "monorepo"
+  ],
+  "license": "MIT",
+  "author": "Tuninbits",
+  "homepage": "https://github.com/tuninbits/buildsweep#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuninbits/buildsweep.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tuninbits/buildsweep/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18.20.0"
+  },
+  "bin": {
+    "buildsweep": "bin/buildsweep.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "rules",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "build:binary": "node scripts/build-binary.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "postject": "1.0.0-alpha.6"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
