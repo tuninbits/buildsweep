@@ -44,13 +44,15 @@ npx buildsweep . --dry-run
 
 Standalone binaries embed Node.js, so they require no separate Node installation. They are available only as assets from successful tagged [GitHub releases](https://github.com/tuninbits/buildsweep/releases):
 
-| Platform | Expected filename        |
-| -------- | ------------------------ |
-| Linux    | `buildsweep-linux`       |
-| macOS    | `buildsweep-macos`       |
-| Windows  | `buildsweep-windows.exe` |
+| Platform | Expected filename         | Extract with                        |
+| -------- | ------------------------- | ----------------------------------- |
+| Linux    | `buildsweep-linux.tar.gz` | `tar -xzf buildsweep-linux.tar.gz`  |
+| macOS    | `buildsweep-macos.tar.gz` | `tar -xzf buildsweep-macos.tar.gz`  |
+| Windows  | `buildsweep-windows.exe`  | Run directly, no extraction needed. |
 
-These binaries are larger than the npm package because they include the runtime, and they do not auto-update. Their filenames identify the operating system but not the CPU architecture. macOS binaries are only ad-hoc signed and may trigger Gatekeeper.
+The Linux and macOS binaries are distributed inside a `.tar.gz` archive because a bare downloaded file loses its executable permission bit. Extracting with `tar` (via Archive Utility, Finder, or the `tar` command) restores that permission automatically, so no `chmod +x` step is needed. The extracted binary can then be run directly, for example by double-clicking it in a file manager that allows executing downloaded files, or from a terminal with `./buildsweep-macos`.
+
+These binaries are larger than the npm package because they include the runtime, and they do not auto-update. Their filenames identify the operating system but not the CPU architecture. macOS binaries are only ad-hoc signed and may still trigger a Gatekeeper prompt on first run; Linux desktop environments may still require enabling "allow executing file as program" in the file's properties before double-click works.
 
 Project CI tests Node.js 18.20.0, 20.x, and 22.x on Ubuntu, macOS, and Windows. This matrix describes automated test coverage, not a guarantee for every architecture or filesystem.
 

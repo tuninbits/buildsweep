@@ -3,6 +3,11 @@ name: Release binaries
 # Builds a standalone executable (no Node.js required to run it) for
 # Windows, macOS, and Linux, and attaches them to the GitHub release
 # for any pushed tag like "v0.1.0".
+#
+# Linux/macOS binaries are packaged as .tar.gz: GitHub release assets lose
+# the Unix executable bit on upload, but tar preserves file mode in its
+# header, so extracting the archive restores +x without a manual chmod.
+# Windows .exe files don't need the executable bit, so that one ships bare.
 on:
   push:
     tags:
@@ -15,10 +20,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact: buildsweep-linux
+            binary: buildsweep-linux
+            artifact: buildsweep-linux.tar.gz
           - os: macos-latest
-            artifact: buildsweep-macos
+            binary: buildsweep-macos
+            artifact: buildsweep-macos.tar.gz
           - os: windows-latest
+            binary: buildsweep-windows.exe
             artifact: buildsweep-windows.exe
     runs-on: ${{ matrix.os }}
     steps:
@@ -28,6 +36,12 @@ jobs:
           node-version: "22"
       - run: npm install
       - run: npm run build:binary
+      - name: Package archive
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          chmod +x "dist/${{ matrix.binary }}"
+          tar -C dist -czf "dist/${{ matrix.artifact }}" "${{ matrix.binary }}"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
