@@ -69,7 +69,7 @@
       "label": "Misc (ambiguous names, opt-in)",
       "risk": "risky",
       "dirs": ["tmp", "vendor", ".vercel"],
-      "note": "These names are also used for intentionally committed content in some projects. Enable with --risky or --only misc."
+      "note": "These names are also used for intentionally committed content in some projects. Enable with --risky; to scan only this group, use --only misc --risky."
     }
   }
 }
