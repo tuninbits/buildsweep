@@ -1,7 +1,7 @@
 # BuildSweep Professional Documentation Design
 
-**Date:** 2026-08-31  
-**Status:** Approved for planning  
+**Date:** 2026-08-31
+**Status:** Approved for planning
 **Owner:** Tuninbits
 
 ## Purpose
