@@ -1,116 +1,182 @@
-# buildsweep
+# BuildSweep
 
-Find and delete build artifacts, dependency folders, and caches across your
-whole machine (or a single repo) in one fast pass — `node_modules`, Rust's
-`target`, Python's `__pycache__`/`.venv`, .NET's `bin`/`obj`, and more.
+[![CI](https://github.com/tuninbits/buildsweep/actions/workflows/ci.yml/badge.svg)](https://github.com/tuninbits/buildsweep/actions/workflows/ci.yml)
+[![Node.js 18.20+](https://img.shields.io/badge/Node.js-18.20%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Most of these directories are already git-ignored, fully regenerable, and
-quietly eat tens of gigabytes across old projects. buildsweep finds them,
-shows you what's there, and deletes only what you approve.
+A cross-platform CLI for finding and removing dependency directories, build outputs, and caches across multiple development ecosystems.
 
-## Why not just `find . -name node_modules -exec rm -rf {} \;`?
+> [!IMPORTANT]
+> BuildSweep is early-stage software. Start with `--dry-run`, review every match, and keep source control or backups for anything you cannot regenerate.
 
-- One command covers every ecosystem you work in, not just one directory name.
-- It's a single-pass walk. Running separate `find` commands per pattern
-  re-scans the entire tree once per pattern — slow, and easy to forget
-  `-prune`, which makes it walk _into_ the very directories you're deleting.
-- Matched directories are pruned (never descended into), so a 200k-file
-  `node_modules` is recognized and skipped in one stat call instead of being
-  traversed file by file.
-- Ambiguous names (`bin`, `obj`) are only treated as build output when a
-  matching project file (`.csproj`, `go.mod`, etc.) sits next to them, so it
-  won't eat a hand-rolled `bin/` script directory.
-- `.git` is never descended into.
-- Always asks before deleting, unless you pass `--yes`.
+## Quick start
 
-## Install
+Preview matches under the current directory without deleting anything:
 
-There are two ways to get buildsweep, pick whichever fits your machine.
+```bash
+npx buildsweep . --dry-run
+```
 
-**Already have Node.js 18.20+ installed?** Use npm — it's the smallest
-download and always gets you the latest version:
+After a global installation, the equivalent command is:
+
+```bash
+buildsweep . --dry-run
+```
+
+When you are satisfied with the report, omit `--dry-run`. BuildSweep then asks once before recursively deleting all listed directories. Pass `--yes` only when you intend to skip that confirmation.
+
+## Installation
+
+### Node.js
+
+Node users need Node.js 18.20.0 or newer. Once the package is published, either install it globally or let `npx` download and run it:
 
 ```bash
 npm install -g buildsweep
+buildsweep . --dry-run
 ```
-
-Or run it without installing anything globally:
 
 ```bash
-npx buildsweep
+npx buildsweep . --dry-run
 ```
 
-**Don't have Node installed, don't have space for it, or just don't want
-to install anything?** Download the standalone binary for your OS from the
-[latest release](https://github.com/tuninbits/buildsweep/releases/latest) —
-it's a single file with the JavaScript runtime built in, no Node required:
+### Standalone binaries
 
-| OS      | File                     |
-| ------- | ------------------------ |
-| macOS   | `buildsweep-macos`       |
-| Linux   | `buildsweep-linux`       |
-| Windows | `buildsweep-windows.exe` |
+Standalone binaries embed Node.js, so they require no separate Node installation. They are available only as assets from successful tagged [GitHub releases](https://github.com/tuninbits/buildsweep/releases):
+
+| Platform | Expected filename        |
+| -------- | ------------------------ |
+| Linux    | `buildsweep-linux`       |
+| macOS    | `buildsweep-macos`       |
+| Windows  | `buildsweep-windows.exe` |
+
+These binaries are larger than the npm package because they include the runtime, and they do not auto-update. Their filenames identify the operating system but not the CPU architecture. macOS binaries are only ad-hoc signed and may trigger Gatekeeper.
+
+Project CI tests Node.js 18.20.0, 20.x, and 22.x on Ubuntu, macOS, and Windows. This matrix describes automated test coverage, not a guarantee for every architecture or filesystem.
+
+## What a scan looks like
+
+A dry run labels each match by ecosystem and, unless `--no-size` is used, shows an estimated logical size:
+
+```text
+$ buildsweep ~/projects --dry-run
+buildsweep — scanning /home/user/projects
+
+Found 2 match(es) across 42 directories scanned:
+
+  - web/node_modules (768 MB) [JavaScript / TypeScript]
+  - api/target (256 MB) [Rust]
+
+Total reclaimable: 1.0 GB
+
+Dry run — nothing was deleted.
+```
+
+Sizes are estimates based on readable regular files; they are not exact filesystem-allocation or guaranteed reclaimed-space measurements.
+
+## How scanning works
+
+1. Discovery walks the selected root once.
+2. Matching directories are recorded and pruned from discovery, so their contents are not searched for nested matches.
+3. By default, sizing separately walks each matched directory to estimate its contents.
+4. `--no-size` skips that sizing phase and is faster on large trees.
+
+Symlinked directories are not traversed. BuildSweep also never traverses directories named `.git`, `.hg`, or `.svn`. Scanning is best-effort: unreadable or vanished paths, and paths that remain locked after retries, may be skipped.
+
+## Built-in ecosystems
+
+Rules match directory basenames. BuildSweep ships with these groups:
+
+| Group        | Label                          | Directory names                                                                                                                                                        |
+| ------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `javascript` | JavaScript / TypeScript        | `node_modules`, `.next`, `.nuxt`, `.turbo`, `.cache`, `dist`, `build`, `out`, `.output`, `.parcel-cache`, `.svelte-kit`, `coverage`, `.nyc_output`, `storybook-static` |
+| `rust`       | Rust                           | `target`                                                                                                                                                               |
+| `python`     | Python                         | `__pycache__`, `.venv`, `venv`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `.tox`, `.eggs`, `*.egg-info`                                                           |
+| `java`       | Java / Kotlin                  | `target`, `build`, `.gradle`                                                                                                                                           |
+| `dotnet`     | .NET                           | `bin`, `obj`, only when an immediate sibling is a `*.csproj`, `*.sln`, `*.fsproj`, or `*.vbproj` file                                                                  |
+| `go`         | Go                             | `bin`, only when `go.mod` is an immediate sibling                                                                                                                      |
+| `ruby`       | Ruby                           | `.bundle`                                                                                                                                                              |
+| `misc`       | Misc (ambiguous names, opt-in) | `tmp`, `vendor`, `.vercel`; requires `--risky`                                                                                                                         |
+
+The `--only` and `--exclude` options select rule groups; they do not detect project languages. Some names belong to multiple groups, such as `target`, `build`, and `bin`. A match is attributed to the first eligible group in rule order, after filters and sibling requirements are applied.
+
+The miscellaneous group remains disabled unless `--risky` is present. To scan only that group, use `--only misc --risky`.
+
+## CLI reference
+
+```text
+buildsweep [directory] [options]
+```
+
+The directory defaults to `.` and is resolved to an absolute path.
+
+| Flag                  | Behavior                                                                     |
+| --------------------- | ---------------------------------------------------------------------------- |
+| `--dry-run`           | Scan and report without prompting or deleting.                               |
+| `--yes`, `-y`         | Skip the all-or-nothing confirmation prompt and delete all reported matches. |
+| `--only <ecosystems>` | Use only the comma-separated rule-group keys.                                |
+| `--exclude <list>`    | Exclude the comma-separated rule-group keys; exclusion wins over inclusion.  |
+| `--risky`             | Include groups classified as risky.                                          |
+| `--rules <path>`      | Load a JSON rules file from the given path and merge it over the defaults.   |
+| `--no-size`           | Skip size calculation for a faster report on large trees.                    |
+| `--json`              | Print a machine-readable report and never delete.                            |
+| `-h`, `--help`        | Show CLI help.                                                               |
+
+Examples:
 
 ```bash
-# macOS / Linux — make it executable once, then run it
-chmod +x buildsweep-macos
-./buildsweep-macos --help
+buildsweep ~/code --dry-run
+buildsweep . --only rust,python --dry-run
+buildsweep . --exclude javascript --no-size --dry-run
+buildsweep . --only misc --risky --dry-run
+buildsweep . --json
 ```
 
-```powershell
-# Windows
-.\buildsweep-windows.exe --help
-```
+## Safety model
 
-The binary is larger (~100MB, since it embeds the whole Node runtime) and
-won't auto-update, but it works with nothing else installed on the machine.
+BuildSweep is designed to make destructive work visible, not to decide whether your data is disposable:
 
-## Usage
+- Rules are primarily directory-name based.
+- BuildSweep does not inspect `.gitignore` or Git tracking.
+- Conventional artifact names can still contain intentional content.
+- The `safe` rule classification is metadata, not a guarantee that deletion is safe for a particular directory.
+- `--dry-run` reports without deleting, while normal mode uses one confirmation for all matches unless `--yes` is supplied.
+- Deletion is recursive and is not recoverable through BuildSweep.
+- `--json` is always report-only, even when combined with `--yes`.
 
-```bash
-buildsweep                       # scan and clean the current directory
-buildsweep ~/code                # scan a specific directory (e.g. all your projects)
-buildsweep . --dry-run           # see what would be deleted, delete nothing
-buildsweep . --only rust,python  # only look for Rust and Python artifacts
-buildsweep . --json              # machine-readable output, for scripting
-```
+Keep source control or backups for content you cannot regenerate, and review every path before approving deletion.
 
-### Options
+## JSON output
 
-| Flag               | Description                                                  |
-| ------------------ | ------------------------------------------------------------ |
-| `--dry-run`        | Scan and report only, delete nothing                         |
-| `--yes`, `-y`      | Skip the confirmation prompt                                 |
-| `--only <list>`    | Comma-separated ecosystems to scan for                       |
-| `--exclude <list>` | Comma-separated ecosystems to skip                           |
-| `--risky`          | Also include ambiguous patterns (`tmp`, `vendor`, `.vercel`) |
-| `--rules <path>`   | Path to a JSON file with additional/override rules           |
-| `--no-size`        | Skip computing directory sizes (faster on huge trees)        |
-| `--json`           | Machine-readable output                                      |
-
-## Default rule set
-
-buildsweep ships with rules for:
-
-- **JavaScript / TypeScript** — `node_modules`, `.next`, `.nuxt`, `.turbo`, `.cache`, `dist`, `build`, `out`, `.output`, `.parcel-cache`, `.svelte-kit`, `coverage`, `.nyc_output`, `storybook-static`
-- **Rust** — `target`
-- **Python** — `__pycache__`, `.venv`, `venv`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `.tox`, `.eggs`, `*.egg-info`
-- **Java / Kotlin** — `target`, `build`, `.gradle`
-- **.NET** — `bin`, `obj` (only when a `.csproj`/`.sln`/`.fsproj`/`.vbproj` sits next to them)
-- **Go** — `bin` (only when `go.mod` sits next to it)
-- **Ruby** — `.bundle`
-- **Misc (opt-in via `--risky`)** — `tmp`, `vendor`, `.vercel`
-
-`.git`, `.hg`, and `.svn` are always skipped and never descended into.
-
-## Custom rules
-
-Drop a `.buildsweeprc.json` in the directory you're scanning, or pass
-`--rules path/to/file.json`. Custom rules are merged additively on top of the
-defaults — you don't have to redeclare the whole rule set:
+Use `--json` for a report that can be consumed by other tools:
 
 ```json
 {
+  "root": "/path/to/projects",
+  "dirsVisited": 42,
+  "totalBytes": 1048576,
+  "matches": [
+    {
+      "path": "/path/to/projects/app/node_modules",
+      "name": "node_modules",
+      "ecosystem": "javascript",
+      "label": "JavaScript / TypeScript",
+      "risk": "safe",
+      "sizeBytes": 1048576
+    }
+  ]
+}
+```
+
+`--json` performs no deletion or confirmation. With `--no-size`, `sizeBytes` is absent from each match and `totalBytes` is zero.
+
+## Custom rules
+
+Place `.buildsweeprc.json` in the selected scan root, or pass `--rules <path>` to select a rules file explicitly. A relative `--rules` path is resolved from the current working directory. An explicit path is used instead of the root-local file, but its contents are still merged over the built-in defaults.
+
+```json
+{
+  "alwaysSkip": ["third_party"],
   "ecosystems": {
     "elixir": {
       "label": "Elixir",
@@ -124,43 +190,39 @@ defaults — you don't have to redeclare the whole rule set:
 }
 ```
 
-## Building the standalone binary yourself
+Merging follows these rules:
 
-Binaries are built with Node's built-in [Single Executable Applications](https://nodejs.org/api/single-executable-applications.html)
-support. Cross-compiling isn't possible — build on the OS you want a binary
-for (or let CI do it, see `.github/workflows/release.yml`, which builds all
-three on every tagged release):
+- Directory patterns are additive and exact duplicates are removed. `alwaysSkip` names are additive too.
+- Built-in directories and always-skip names cannot be removed by custom configuration.
+- For an existing group, supplied `label`, `risk`, `requireSibling`, and `note` metadata replaces the built-in value for that field.
+- New groups default to the label `Custom` and risk `safe` when those fields are omitted.
+- Directory names, group keys, selectors, skip names, and sibling patterns are case-sensitive.
+- Patterns match a directory basename and may contain at most one `*`, which acts as a case-sensitive prefix-and-suffix wildcard. Other glob syntax and path matching are not supported.
 
-```bash
-npm install
-npm run build:binary
-# -> dist/buildsweep-macos | dist/buildsweep-linux | dist/buildsweep-windows.exe
-```
+Because custom `safe` rules participate in unattended deletion with `--yes`, classify and test them conservatively with `--dry-run` first.
 
-## Why no GUI (yet)
+## Troubleshooting
 
-buildsweep is built to be scriptable and fast: one command, works over SSH,
-composable in CI or a pre-commit hook. An interactive terminal UI (arrow-key
-select, live scan) is a natural next step; a full desktop GUI is not planned
-since it doesn't fit how this tool gets used day to day.
+### Permissions or skipped paths
 
-## Safety
+BuildSweep skips paths it cannot read rather than treating the scan as a complete inventory. Check permissions and rerun from the narrowest useful root. A vanished path can also be skipped if another process changes the tree during scanning.
 
-- Nothing is deleted without a confirmation prompt, unless you pass `--yes`.
-- `--dry-run` never touches the filesystem.
-- Ambiguous directory names require a matching sibling project file before
-  they're considered a match.
-- `--risky` is opt-in for patterns that are sometimes intentionally committed.
+### Large scans
 
-buildsweep deletes directories recursively. Review the list it prints before
-confirming, especially the first time you run it against a new directory.
+Size estimation is a separate recursive walk of every match. Use `--no-size` when you need faster discovery and do not need per-match estimates.
 
-## Contributing
+### macOS Gatekeeper
 
-Issues and PRs welcome, especially rules for ecosystems not covered yet
-(Elixir, PHP/Composer, Swift, C/C++ build systems, etc.). Run `npm test`
-before submitting.
+Release binaries are ad-hoc signed rather than Developer ID signed and notarized, so Gatekeeper may warn. Confirm the download source before following any local security prompt; use the Node.js installation path if you prefer not to run an ad-hoc-signed binary.
 
-## License
+### Windows locks
 
-MIT
+BuildSweep briefly retries common transient directory-lock failures. Close programs, terminals, antivirus scans, or indexers holding a path and rerun if a directory remains locked or deletion fails.
+
+### Missing release assets
+
+Standalone assets are attached only after every operating-system build succeeds for a pushed version tag. A tag or filename mention does not guarantee that an asset exists. Check the release's assets and workflow status; the expected names do not identify CPU architecture.
+
+## Project
+
+[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Code of Conduct](CODE_OF_CONDUCT.md) · [MIT License](LICENSE)

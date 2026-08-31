@@ -1,7 +1,7 @@
 {
   "name": "buildsweep",
   "version": "0.1.0",
-  "description": "Find and delete build artifacts, caches, and dependency folders (node_modules, target, __pycache__, bin/obj, and more) across every language in one fast pass.",
+  "description": "Find and delete dependency directories, build outputs, and caches across multiple development ecosystems.",
   "keywords": [
     "cli",
     "cleanup",

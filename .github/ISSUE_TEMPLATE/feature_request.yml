@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a focused improvement to BuildSweep.
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: "Start with the user problem rather than only a proposed solution. Do not include secrets, private reports, personal data, or sensitive project details."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What user problem or limitation should BuildSweep address, and who is affected?
+      placeholder: I cannot... because...
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-behavior
+    attributes:
+      label: Proposed behavior
+      description: Describe the focused behavior you would like BuildSweep to provide.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe workarounds or alternative approaches you considered and why they are insufficient.
+    validations:
+      required: true
+  - type: textarea
+    id: safety-deletion-impact
+    attributes:
+      label: Safety and deletion impact
+      description: Explain whether this could change scanning, path resolution, matching, prompting, or recursive deletion. State "None" if it has no safety impact.
+    validations:
+      required: true
+  - type: textarea
+    id: platform-impact
+    attributes:
+      label: Platform impact
+      description: Describe expected behavior or constraints on Ubuntu, macOS, Windows, architectures, or filesystems. State "None known" when appropriate.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility-considerations
+    attributes:
+      label: Compatibility considerations
+      description: Describe effects on CLI and JSON contracts, configuration and cleanup-rule compatibility, supported Node.js versions, and backward compatibility. State "None known" when appropriate.
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add redacted examples, mockups, or other context that helps explain the request.
