@@ -30,7 +30,13 @@ const outputPath = path.join(distDir, outputName);
 
 function run(cmd, args) {
   console.log(`$ ${cmd} ${args.join(" ")}`);
-  execFileSync(cmd, args, { cwd: root, stdio: "inherit" });
+  // On Windows, npx/npm are `.cmd` shims that execFileSync cannot resolve
+  // through PATH without going through a shell.
+  execFileSync(cmd, args, {
+    cwd: root,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
 }
 
 mkdirSync(distDir, { recursive: true });
@@ -70,7 +76,9 @@ run("npx", [
   "dist/sea-prep.blob",
   "--sentinel-fuse",
   "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
-  ...(process.platform === "darwin" ? ["--macho-segment-name", "NODE_SEA"] : []),
+  ...(process.platform === "darwin"
+    ? ["--macho-segment-name", "NODE_SEA"]
+    : []),
 ]);
 
 // 6. Re-sign on macOS (ad-hoc signature, sufficient for local execution;
