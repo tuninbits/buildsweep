@@ -6,12 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Fixed
+
+- Windows release builds no longer fail with `spawnSync npx ENOENT`; `npx` is now invoked through a shell on Windows.
+- The release build matrix no longer cancels other platforms when one fails (`fail-fast: false`).
+- Linux and macOS standalone binaries are now packaged as `.tar.gz` archives so extracting them preserves the executable permission bit, removing the need for a manual `chmod +x` after download.
+
 ### Changed
+
 - Reworked project documentation and community contribution guidance.
 
 ## [0.1.0]
 
 ### Added
+
 - Cross-platform recursive discovery of build artifacts, dependency directories, and caches.
 - Built-in rules for JavaScript/TypeScript, Rust, Python, Java/Kotlin, .NET, Go, and Ruby.
 - Dry-run, confirmation, ecosystem filters, risky-rule opt-in, JSON reporting, custom rules, and no-size scanning.
