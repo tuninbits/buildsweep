@@ -52,7 +52,7 @@ Standalone binaries embed Node.js, so they require no separate Node installation
 
 The Linux and macOS binaries are distributed inside a `.tar.gz` archive because a bare downloaded file loses its executable permission bit. Extracting with `tar` (via Archive Utility, Finder, or the `tar` command) restores that permission automatically, so no `chmod +x` step is needed. The extracted binary can then be run directly, for example by double-clicking it in a file manager that allows executing downloaded files, or from a terminal with `./buildsweep-macos`.
 
-These binaries are larger than the npm package because they include the runtime, and they do not auto-update. Their filenames identify the operating system but not the CPU architecture. macOS binaries are only ad-hoc signed and may still trigger a Gatekeeper prompt on first run; Linux desktop environments may still require enabling "allow executing file as program" in the file's properties before double-click works.
+These binaries are larger than the npm package because they include the runtime, and they do not auto-update. Their filenames identify the operating system but not the CPU architecture. macOS binaries are only ad-hoc signed and may still trigger a Gatekeeper prompt on first run (see [macOS Gatekeeper](#macos-gatekeeper) below); Linux desktop environments may still require enabling "allow executing file as program" in the file's properties before double-click works.
 
 Project CI tests Node.js 18.20.0, 20.x, and 22.x on Ubuntu, macOS, and Windows. This matrix describes automated test coverage, not a guarantee for every architecture or filesystem.
 
@@ -215,7 +215,17 @@ Size estimation is a separate recursive walk of every match. Use `--no-size` whe
 
 ### macOS Gatekeeper
 
-Release binaries are ad-hoc signed rather than Developer ID signed and notarized, so Gatekeeper may warn. Confirm the download source before following any local security prompt; use the Node.js installation path if you prefer not to run an ad-hoc-signed binary.
+Release binaries are ad-hoc signed rather than Developer ID signed and notarized, so double-clicking `buildsweep-macos` after extraction typically shows "Apple could not verify ... is free of malware" with no "Open Anyway" option. This is expected for an ad-hoc-signed binary and is not a corrupted download.
+
+Confirm the download source, then clear the quarantine attribute that Gatekeeper is blocking on:
+
+```bash
+xattr -d com.apple.quarantine buildsweep-macos
+```
+
+Run that once per downloaded file, from the directory containing the extracted binary, then double-click it or run `./buildsweep-macos` normally. If you prefer not to use the terminal, open **System Settings → Privacy & Security**, scroll to the security message naming the file, and click **Open Anyway**, then confirm in the dialog that appears on the next launch attempt.
+
+If you prefer to avoid ad-hoc-signed binaries entirely, use the Node.js installation path instead.
 
 ### Windows locks
 
