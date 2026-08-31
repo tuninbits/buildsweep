@@ -1,0 +1,111 @@
+name: Bug report
+description: Report incorrect behavior, missed matches, or unsafe matches.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Before submitting, run BuildSweep with --dry-run and redact sensitive paths, usernames, tokens, and project names."
+  - type: markdown
+    attributes:
+      value: "If a match, resolved path, or scanner behavior could cause unintended recursive deletion or data loss, stop and use the private Security vulnerability contact option instead of filing a public issue."
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the problem and its impact without including destructive details or private data.
+      placeholder: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Use the smallest safe reproduction and disposable data. Begin with --dry-run and redact sensitive details.
+      placeholder: |
+        1. Create a disposable test layout...
+        2. Run buildsweep with --dry-run...
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: What did you expect BuildSweep to report or do?
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual behavior
+      description: What did BuildSweep report or do?
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Command
+      description: Provide the exact buildsweep command with sensitive values replaced by placeholders.
+      placeholder: buildsweep /path/to/disposable-root --dry-run
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating system
+      description: Include the operating system name and version.
+      placeholder: Ubuntu 24.04, macOS 15, or Windows 11
+    validations:
+      required: true
+  - type: input
+    id: architecture
+    attributes:
+      label: Architecture
+      description: Include the processor architecture used to run BuildSweep.
+      placeholder: x64 or arm64
+    validations:
+      required: true
+  - type: dropdown
+    id: installation-method
+    attributes:
+      label: Installation method
+      description: How did you install or run buildsweep?
+      options:
+        - Source checkout
+        - npm package
+        - Standalone executable
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Provide the BuildSweep version or commit.
+      placeholder: Version number or commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: dry-run-output
+    attributes:
+      label: Dry-run output
+      description: Paste relevant report-only output from --dry-run or --json. Redact sensitive paths, usernames, tokens, and project names.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: custom-rules
+    attributes:
+      label: Custom rules
+      description: Paste relevant redacted custom rules, or enter "None" if no custom rules were active.
+      render: json
+    validations:
+      required: true
+  - type: checkboxes
+    id: secret-acknowledgement
+    attributes:
+      label: Sensitive information acknowledgement
+      options:
+        - label: I confirm that this public report contains no secrets, tokens, private data, or unredacted sensitive paths, usernames, or project names.
+          required: true

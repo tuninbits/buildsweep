@@ -1,0 +1,68 @@
+name: Cleanup rule request
+description: Propose a conservative cleanup rule for disposable generated output.
+title: "[Rule]: "
+body:
+  - type: markdown
+    attributes:
+      value: "BuildSweep rules are directory-name based and a match is not proof that deletion is safe. Describe a reproducible generated-output convention and redact sensitive project information."
+  - type: input
+    id: ecosystem-tool
+    attributes:
+      label: Ecosystem or tool
+      description: Name the ecosystem, build system, package manager, or tool that creates the output.
+      placeholder: Tool name and version, if relevant
+    validations:
+      required: true
+  - type: textarea
+    id: generated-directories
+    attributes:
+      label: Generated directory names
+      description: List the exact case-sensitive directory basenames created by the tool.
+      placeholder: One directory basename per line
+    validations:
+      required: true
+  - type: textarea
+    id: project-markers
+    attributes:
+      label: Sibling or project marker files
+      description: List files or directories that distinguish generated output from unrelated content, including where each marker appears relative to the proposed path.
+    validations:
+      required: true
+  - type: input
+    id: regeneration-command
+    attributes:
+      label: Official regeneration command
+      description: Provide the documented command that recreates the generated output.
+      placeholder: tool build
+    validations:
+      required: true
+  - type: textarea
+    id: false-positive-risks
+    attributes:
+      label: False-positive risks
+      description: Explain where the same directory names can contain source, user-created, or otherwise non-disposable content.
+    validations:
+      required: true
+  - type: textarea
+    id: official-documentation
+    attributes:
+      label: Official documentation links
+      description: Provide official tool documentation supporting the directory names and regeneration command. Do not include private links.
+      placeholder: One public official documentation URL per line
+    validations:
+      required: true
+  - type: textarea
+    id: sample-layout
+    attributes:
+      label: Sample project layout
+      description: Show the smallest representative layout, including the generated directories and relevant sibling or project markers. Replace private names with placeholders.
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: disposable-output-acknowledgement
+    attributes:
+      label: Disposable output acknowledgement
+      options:
+        - label: I confirm that the proposed paths contain reproducible, disposable generated outputs rather than source or user-created content.
+          required: true
