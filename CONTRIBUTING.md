@@ -16,7 +16,7 @@ For vulnerabilities or paths that could cause unintended data loss, follow [SECU
 
 ## Development setup
 
-BuildSweep requires Node.js 18.20 or newer. Clone the repository, enter its root, and install the pinned project dependencies:
+BuildSweep requires Node.js 18.20.0 or newer. Clone the repository, enter its root, and install the pinned project dependencies:
 
 ```bash
 npm install
