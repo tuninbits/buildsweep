@@ -29,7 +29,7 @@ When you are satisfied with the report, omit `--dry-run`. BuildSweep then asks o
 
 ### Node.js
 
-Node users need Node.js 18.20 or newer. Once the package is published, either install it globally or let `npx` download and run it:
+Node users need Node.js 18.20.0 or newer. Once the package is published, either install it globally or let `npx` download and run it:
 
 ```bash
 npm install -g buildsweep

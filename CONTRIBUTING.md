@@ -72,7 +72,9 @@ A rule change must include:
 
 - positive-match tests for each new or changed pattern;
 - false-positive cases proving unrelated paths are not selected;
+- shared-name attribution tests proving overlapping names are assigned to the first eligible rule group after filters and sibling requirements;
 - sibling-guard coverage where directory names are ambiguous, including both matching and non-matching sibling layouts;
+- discovery-pruning coverage proving a matched directory is not descended into and its descendants are not reported as additional matches;
 - platform-safe `path` handling rather than hard-coded path separators; and
 - corresponding README and changelog updates.
 
@@ -104,6 +106,9 @@ Before publishing a version:
 - confirm the version and changelog entries are accurate and do not claim unverified distribution availability;
 - verify `npm install`, `npm test`, the CLI help output, and a dry-run smoke test on a clean checkout;
 - confirm documentation, package metadata, and expected standalone filenames agree;
+- run `npm pack --dry-run` and inspect the package contents before publication;
+- publish only the intended version with `npm publish`, and only after tests, documentation, and package metadata are verified;
+- after publication, verify availability and metadata with `npm view buildsweep@<version>` and inspect the published contents with `npm pack buildsweep@<version> --dry-run`;
 - review cleanup-rule changes for positive matches, false positives, sibling guards, platform-safe paths, and risky-rule opt-in behavior;
 - verify the configured CI matrix passes;
 - push a `v*` release tag only for the intended commit; and

@@ -42,6 +42,13 @@ body:
     validations:
       required: true
   - type: textarea
+    id: compatibility-considerations
+    attributes:
+      label: Compatibility considerations
+      description: Describe effects on CLI and JSON contracts, configuration and cleanup-rule compatibility, supported Node.js versions, and backward compatibility. State "None known" when appropriate.
+    validations:
+      required: true
+  - type: textarea
     id: additional-context
     attributes:
       label: Additional context
