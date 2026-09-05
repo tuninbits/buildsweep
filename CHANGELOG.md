@@ -6,8 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.0]
+
+First stable release. The CLI flags, JSON output shape, and rules file format are now covered by semantic versioning.
+
+### Added
+
+- Bundled TypeScript declarations (`src/index.d.ts`), so the package is typed out of the box with no `@types/buildsweep` needed.
+- A documented programmatic API exported from the package root, covering the scanner, rule loading/merging, glob matching, and byte formatting.
+- A `typecheck` script and CI job that compile the declarations against a usage sample, so the published types cannot drift from the implementation.
+
 ### Changed
 
+- The package now declares an `exports` map. Only the package root is importable; deep imports such as `buildsweep/src/scan.js` are no longer resolvable. Import from `"buildsweep"` instead.
 - Documented the `xattr -d com.apple.quarantine` workaround for the macOS Gatekeeper "cannot verify" prompt on standalone binaries.
 
 ## [0.1.1]

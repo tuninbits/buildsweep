@@ -1,6 +1,6 @@
 {
   "name": "buildsweep",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Find and delete dependency directories, build outputs, and caches across multiple development ecosystems.",
   "keywords": [
     "cli",
@@ -31,6 +31,15 @@
   "bin": {
     "buildsweep": "bin/buildsweep.js"
   },
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "bin",
     "src",
@@ -40,11 +49,14 @@
   ],
   "scripts": {
     "test": "node --test test/format.test.js test/glob.test.js test/rules.test.js test/scan.test.js test/retry.test.js",
+    "typecheck": "tsc --project tsconfig.json",
     "build:binary": "node scripts/build-binary.js"
   },
   "devDependencies": {
+    "@types/node": "18.19.130",
     "esbuild": "0.28.2",
-    "postject": "1.0.0-alpha.6"
+    "postject": "1.0.0-alpha.6",
+    "typescript": "5.9.3"
   },
   "allowScripts": {
     "esbuild@0.28.2": true

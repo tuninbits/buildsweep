@@ -7,7 +7,7 @@
 A cross-platform CLI for finding and removing dependency directories, build outputs, and caches across multiple development ecosystems.
 
 > [!IMPORTANT]
-> BuildSweep is early-stage software. Start with `--dry-run`, review every match, and keep source control or backups for anything you cannot regenerate.
+> BuildSweep deletes directories recursively. Start with `--dry-run`, review every match, and keep source control or backups for anything you cannot regenerate.
 
 ## Quick start
 
@@ -171,6 +171,38 @@ Use `--json` for a report that can be consumed by other tools:
 ```
 
 `--json` performs no deletion or confirmation. With `--no-size`, `sizeBytes` is absent from each match and `totalBytes` is zero.
+
+## Programmatic API
+
+The CLI is the primary interface, but the scanner and rule engine are importable when you need a report inside your own tooling rather than a shell pipeline. TypeScript declarations ship with the package, so no separate `@types` install is required.
+
+```js
+import { loadDefaultRules, buildLookup, scanForMatches, formatBytes } from "buildsweep";
+
+const rules = await loadDefaultRules();
+const lookup = buildLookup(rules, { includeRisky: false, only: ["rust", "python"] });
+const { matches, dirsVisited } = await scanForMatches(process.cwd(), lookup);
+
+const total = matches.reduce((sum, match) => sum + (match.sizeBytes ?? 0), 0);
+console.log(`${matches.length} matches in ${dirsVisited} directories, ${formatBytes(total)}`);
+```
+
+The API reports; it never deletes. Removal stays in the CLI layer, so importing BuildSweep cannot remove anything on its own.
+
+| Export                                | Purpose                                                              |
+| ------------------------------------- | -------------------------------------------------------------------- |
+| `loadDefaultRules()`                  | Load a mutable copy of the built-in rule set.                        |
+| `loadUserRules(path)`                 | Read a rules file; resolves to `null` when it does not exist.        |
+| `mergeRules(defaults, userRules)`     | Merge user rules additively over the defaults.                       |
+| `buildLookup(rules, options)`         | Flatten rules for the scanner, applying risk and ecosystem filters.  |
+| `scanForMatches(root, lookup, opts)`  | Walk a root once and return `{ matches, dirsVisited }`.              |
+| `opendirWithRetry(path, opts)`        | `fs.opendir` with backoff on transient Windows locking errors.       |
+| `formatBytes(bytes)`                  | Format a byte count, e.g. `"1.4 GB"`.                                |
+| `matchesPattern` / `matchesAny`       | The single-wildcard matcher used by the rules.                       |
+| `color`                               | ANSI helpers that no-op when stdout is not a TTY or `NO_COLOR` is set. |
+| `run(argv)`                           | Run the CLI itself and resolve to its exit code.                     |
+
+Only the package root is importable. Modules under `src/` are internal and may move between releases, so avoid deep imports such as `buildsweep/src/scan.js`.
 
 ## Custom rules
 
