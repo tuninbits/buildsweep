@@ -1,6 +1,6 @@
 {
   "name": "buildsweep",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Find and delete dependency directories, build outputs, and caches across multiple development ecosystems.",
   "keywords": [
     "cli",
