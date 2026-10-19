@@ -16,6 +16,7 @@
         ".output",
         ".parcel-cache",
         ".svelte-kit",
+        ".astro",
         "coverage",
         ".nyc_output",
         "storybook-static"
@@ -64,6 +65,19 @@
       "label": "Ruby",
       "risk": "safe",
       "dirs": [".bundle"]
+    },
+    "playwright": {
+      "label": "Playwright",
+      "risk": "safe",
+      "dirs": ["test-results", "playwright-report", "blob-report"],
+      "requireSibling": ["playwright.config.*"],
+      "note": "Only matches when a playwright.config.* file sits next to the folder, so unrelated test-results/ folders are left alone. A custom outputDir can be added with a rules file."
+    },
+    "cloudflare": {
+      "label": "Cloudflare Wrangler",
+      "risk": "risky",
+      "dirs": [".wrangler"],
+      "note": "Wrangler's local folder. Besides build temp files it can hold local D1, KV, R2 and Durable Object data persisted by `wrangler dev`, so it is opt-in. Enable with --risky."
     },
     "misc": {
       "label": "Misc (ambiguous names, opt-in)",

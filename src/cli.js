@@ -17,14 +17,14 @@ ${color.bold("Options")}
   --yes, -y            Skip the confirmation prompt and delete immediately
   --only <ecosystems>  Comma-separated list of ecosystems to scan for (e.g. "rust,python")
   --exclude <list>     Comma-separated list of ecosystems to skip
-  --risky              Also include ambiguous/risky patterns (tmp, vendor, .vercel)
+  --risky              Also include ambiguous/risky patterns (tmp, vendor, .vercel, .wrangler)
   --rules <path>       Path to a JSON file with additional/override rules
   --no-size            Skip computing directory sizes (faster on huge trees)
   --json               Print machine-readable JSON instead of the interactive report
   -h, --help            Show this help text
 
 ${color.bold("Ecosystems")}
-  javascript, rust, python, java, dotnet, go, ruby, misc (risky)
+  javascript, rust, python, java, dotnet, go, ruby, playwright, cloudflare (risky), misc (risky)
 
 ${color.bold("Examples")}
   buildsweep                       Scan and clean the current directory

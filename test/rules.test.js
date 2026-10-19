@@ -48,3 +48,13 @@ test("buildLookup honors only/exclude filters", async () => {
   assert.equal(excludeJs.exactNames.has("node_modules"), false);
   assert.equal(excludeJs.exactNames.has("target"), true);
 });
+
+test("default rules include Astro, Playwright and Wrangler", async () => {
+  const rules = await loadDefaultRules();
+  assert.ok(rules.ecosystems.javascript.dirs.includes(".astro"));
+  assert.deepEqual(rules.ecosystems.playwright.requireSibling, ["playwright.config.*"]);
+  assert.equal(rules.ecosystems.cloudflare.risk, "risky");
+  const safe = buildLookup(rules, { includeRisky: false, only: null, exclude: null });
+  assert.equal(safe.exactNames.has(".wrangler"), false);
+  assert.equal(safe.exactNames.has("test-results"), true);
+});

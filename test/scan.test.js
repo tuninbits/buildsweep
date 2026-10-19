@@ -40,6 +40,16 @@ async function makeFixture() {
   await mkdir(path.join(root, "proj-f/obj"), { recursive: true });
   await writeFile(path.join(root, "proj-f/app.csproj"), "<Project />");
 
+  // Astro project: .astro is generated, and Playwright output sits next to its config
+  await mkdir(path.join(root, "proj-g/.astro"), { recursive: true });
+  await mkdir(path.join(root, "proj-g/test-results/run-1"), { recursive: true });
+  await mkdir(path.join(root, "proj-g/playwright-report"), { recursive: true });
+  await mkdir(path.join(root, "proj-g/.wrangler/state"), { recursive: true });
+  await writeFile(path.join(root, "proj-g/playwright.config.ts"), "export default {};\n");
+
+  // test-results/ without a Playwright config -> should NOT match
+  await mkdir(path.join(root, "proj-h/test-results"), { recursive: true });
+
   // .git must never be descended into
   await mkdir(path.join(root, ".git/objects"), { recursive: true });
   await mkdir(path.join(root, ".git/node_modules_decoy"), { recursive: true });
@@ -187,6 +197,43 @@ test("does not descend into a matched directory (pruning)", async () => {
       relPosix(root, m.path).includes("node_modules/pkg/target"),
     );
     assert.equal(nested.length, 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("matches .astro and Playwright output next to playwright.config.*", async () => {
+  const root = await makeFixture();
+  try {
+    const { matches } = await scanFixture(root);
+    const byPath = new Map(matches.map((m) => [relPosix(root, m.path), m.ecosystem]));
+    assert.equal(byPath.get("proj-g/.astro"), "javascript");
+    assert.equal(byPath.get("proj-g/test-results"), "playwright");
+    assert.equal(byPath.get("proj-g/playwright-report"), "playwright");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("does not match test-results/ without a Playwright config", async () => {
+  const root = await makeFixture();
+  try {
+    const { matches } = await scanFixture(root);
+    const names = matches.map((m) => relPosix(root, m.path));
+    assert.ok(!names.includes("proj-h/test-results"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("matches .wrangler only with --risky", async () => {
+  const root = await makeFixture();
+  try {
+    const risky = await scanFixture(root, { includeRisky: true });
+    const safe = await scanFixture(root, { includeRisky: false });
+    const riskyMatch = risky.matches.find((m) => relPosix(root, m.path) === "proj-g/.wrangler");
+    assert.equal(riskyMatch?.ecosystem, "cloudflare");
+    assert.ok(!safe.matches.some((m) => relPosix(root, m.path) === "proj-g/.wrangler"));
   } finally {
     await rm(root, { recursive: true, force: true });
   }
