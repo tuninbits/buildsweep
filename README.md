@@ -91,18 +91,20 @@ Rules match directory basenames. BuildSweep ships with these groups:
 
 | Group        | Label                          | Directory names                                                                                                                                                        |
 | ------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `javascript` | JavaScript / TypeScript        | `node_modules`, `.next`, `.nuxt`, `.turbo`, `.cache`, `dist`, `build`, `out`, `.output`, `.parcel-cache`, `.svelte-kit`, `coverage`, `.nyc_output`, `storybook-static` |
+| `javascript` | JavaScript / TypeScript        | `node_modules`, `.next`, `.nuxt`, `.turbo`, `.cache`, `dist`, `build`, `out`, `.output`, `.parcel-cache`, `.svelte-kit`, `.astro`, `coverage`, `.nyc_output`, `storybook-static` |
 | `rust`       | Rust                           | `target`                                                                                                                                                               |
 | `python`     | Python                         | `__pycache__`, `.venv`, `venv`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `.tox`, `.eggs`, `*.egg-info`                                                           |
 | `java`       | Java / Kotlin                  | `target`, `build`, `.gradle`                                                                                                                                           |
 | `dotnet`     | .NET                           | `bin`, `obj`, only when an immediate sibling is a `*.csproj`, `*.sln`, `*.fsproj`, or `*.vbproj` file                                                                  |
 | `go`         | Go                             | `bin`, only when `go.mod` is an immediate sibling                                                                                                                      |
 | `ruby`       | Ruby                           | `.bundle`                                                                                                                                                              |
+| `playwright` | Playwright                     | `test-results`, `playwright-report`, `blob-report`, only when a `playwright.config.*` file is an immediate sibling |
+| `cloudflare` | Cloudflare Wrangler (opt-in)   | `.wrangler`; requires `--risky` because `wrangler dev` can keep local D1, KV, R2 and Durable Object data there |
 | `misc`       | Misc (ambiguous names, opt-in) | `tmp`, `vendor`, `.vercel`; requires `--risky`                                                                                                                         |
 
 The `--only` and `--exclude` options select rule groups; they do not detect project languages. Some names belong to multiple groups, such as `target`, `build`, and `bin`. A match is attributed to the first eligible group in rule order, after filters and sibling requirements are applied.
 
-The miscellaneous group remains disabled unless `--risky` is present. To scan only that group, use `--only misc --risky`.
+The `cloudflare` and `misc` groups remain disabled unless `--risky` is present. To scan only one of them, use for example `--only misc --risky`.
 
 ## CLI reference
 

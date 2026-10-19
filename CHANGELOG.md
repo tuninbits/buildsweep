@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- `.astro` (Astro's generated types and cache) in the `javascript` group.
+- A `playwright` group for `test-results`, `playwright-report` and `blob-report`, matched only when a `playwright.config.*` file is an immediate sibling.
+- A `cloudflare` group for `.wrangler`, opt-in with `--risky` because `wrangler dev` can persist local D1, KV, R2 and Durable Object data there.
+
 ## [1.0.0]
 
 First stable release. The CLI flags, JSON output shape, and rules file format are now covered by semantic versioning.
