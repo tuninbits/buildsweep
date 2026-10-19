@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- `.pnpm-store` (a project-local pnpm package store) in the `javascript` group.
+- A `playwright-mcp` group for `.playwright-mcp`, the screenshots, page snapshots and logs written by the Playwright MCP server.
+
 ## [1.1.0]
 
 ### Added

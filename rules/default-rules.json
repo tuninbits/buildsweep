@@ -17,6 +17,7 @@
         ".parcel-cache",
         ".svelte-kit",
         ".astro",
+        ".pnpm-store",
         "coverage",
         ".nyc_output",
         "storybook-static"
@@ -72,6 +73,12 @@
       "dirs": ["test-results", "playwright-report", "blob-report"],
       "requireSibling": ["playwright.config.*"],
       "note": "Only matches when a playwright.config.* file sits next to the folder, so unrelated test-results/ folders are left alone. A custom outputDir can be added with a rules file."
+    },
+    "playwright-mcp": {
+      "label": "Playwright MCP",
+      "risk": "safe",
+      "dirs": [".playwright-mcp"],
+      "note": "Screenshots, page snapshots and logs written by the Playwright MCP server during browser sessions. Always regenerated."
     },
     "cloudflare": {
       "label": "Cloudflare Wrangler",
