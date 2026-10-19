@@ -47,6 +47,11 @@ async function makeFixture() {
   await mkdir(path.join(root, "proj-g/.wrangler/state"), { recursive: true });
   await writeFile(path.join(root, "proj-g/playwright.config.ts"), "export default {};\n");
 
+  // Tool output that needs no sibling: Playwright MCP sessions, a project-local pnpm store
+  await mkdir(path.join(root, "proj-g/.playwright-mcp"), { recursive: true });
+  await writeFile(path.join(root, "proj-g/.playwright-mcp/page.png"), "x".repeat(200));
+  await mkdir(path.join(root, "proj-g/.pnpm-store/v10"), { recursive: true });
+
   // test-results/ without a Playwright config -> should NOT match
   await mkdir(path.join(root, "proj-h/test-results"), { recursive: true });
 
@@ -234,6 +239,18 @@ test("matches .wrangler only with --risky", async () => {
     const riskyMatch = risky.matches.find((m) => relPosix(root, m.path) === "proj-g/.wrangler");
     assert.equal(riskyMatch?.ecosystem, "cloudflare");
     assert.ok(!safe.matches.some((m) => relPosix(root, m.path) === "proj-g/.wrangler"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("matches .playwright-mcp and a project-local .pnpm-store", async () => {
+  const root = await makeFixture();
+  try {
+    const { matches } = await scanFixture(root, { includeRisky: false });
+    const byPath = new Map(matches.map((m) => [relPosix(root, m.path), m.ecosystem]));
+    assert.equal(byPath.get("proj-g/.playwright-mcp"), "playwright-mcp");
+    assert.equal(byPath.get("proj-g/.pnpm-store"), "javascript");
   } finally {
     await rm(root, { recursive: true, force: true });
   }

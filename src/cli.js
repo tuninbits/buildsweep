@@ -24,7 +24,8 @@ ${color.bold("Options")}
   -h, --help            Show this help text
 
 ${color.bold("Ecosystems")}
-  javascript, rust, python, java, dotnet, go, ruby, playwright, cloudflare (risky), misc (risky)
+  javascript, rust, python, java, dotnet, go, ruby, playwright, playwright-mcp,
+  cloudflare (risky), misc (risky)
 
 ${color.bold("Examples")}
   buildsweep                       Scan and clean the current directory

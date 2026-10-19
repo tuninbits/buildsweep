@@ -91,7 +91,7 @@ Rules match directory basenames. BuildSweep ships with these groups:
 
 | Group        | Label                          | Directory names                                                                                                                                                        |
 | ------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `javascript` | JavaScript / TypeScript        | `node_modules`, `.next`, `.nuxt`, `.turbo`, `.cache`, `dist`, `build`, `out`, `.output`, `.parcel-cache`, `.svelte-kit`, `.astro`, `coverage`, `.nyc_output`, `storybook-static` |
+| `javascript` | JavaScript / TypeScript        | `node_modules`, `.next`, `.nuxt`, `.turbo`, `.cache`, `dist`, `build`, `out`, `.output`, `.parcel-cache`, `.svelte-kit`, `.astro`, `.pnpm-store`, `coverage`, `.nyc_output`, `storybook-static` |
 | `rust`       | Rust                           | `target`                                                                                                                                                               |
 | `python`     | Python                         | `__pycache__`, `.venv`, `venv`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `.tox`, `.eggs`, `*.egg-info`                                                           |
 | `java`       | Java / Kotlin                  | `target`, `build`, `.gradle`                                                                                                                                           |
@@ -99,6 +99,7 @@ Rules match directory basenames. BuildSweep ships with these groups:
 | `go`         | Go                             | `bin`, only when `go.mod` is an immediate sibling                                                                                                                      |
 | `ruby`       | Ruby                           | `.bundle`                                                                                                                                                              |
 | `playwright` | Playwright                     | `test-results`, `playwright-report`, `blob-report`, only when a `playwright.config.*` file is an immediate sibling |
+| `playwright-mcp` | Playwright MCP             | `.playwright-mcp` (screenshots, snapshots and logs from Playwright MCP browser sessions) |
 | `cloudflare` | Cloudflare Wrangler (opt-in)   | `.wrangler`; requires `--risky` because `wrangler dev` can keep local D1, KV, R2 and Durable Object data there |
 | `misc`       | Misc (ambiguous names, opt-in) | `tmp`, `vendor`, `.vercel`; requires `--risky`                                                                                                                         |
 
